@@ -2,7 +2,7 @@
 using System.Net;
 using System.Text.Json;
 using Thunk;
-using Thunk.Services.ExceptionsJournal;
+using WebApi.Utilities;
 
 namespace WebApi.Middleware
 {
@@ -10,7 +10,7 @@ namespace WebApi.Middleware
   {
     public string Type;
     public long Id;
-    public Dictionary<string, string> Data = new ();
+    public Dictionary<string, string> Data = new();
   }
 
   public class ErrorHandlerMiddleware
@@ -18,7 +18,7 @@ namespace WebApi.Middleware
     private readonly RequestDelegate _next;
     private readonly ILogger<ErrorHandlerMiddleware> _logger;
 
-    public ErrorHandlerMiddleware(RequestDelegate next, 
+    public ErrorHandlerMiddleware(RequestDelegate next,
       ILogger<ErrorHandlerMiddleware> logger)
     {
       _next = next;
@@ -28,7 +28,7 @@ namespace WebApi.Middleware
     // todo: do something real here, at least GUIDs which do not intersect between different machines
     long GenerateEventId() => new Random().Next();
 
-    public async Task Invoke(HttpContext context, ExceptionsJournalService exceptionsJournalService)
+    public async Task Invoke(HttpContext context, IExceptionSender exceptionSender)
     {
       try
       {
@@ -44,7 +44,7 @@ namespace WebApi.Middleware
         long id = 0;
         try
         {
-          id = await exceptionsJournalService.StoreException(error,
+          id = await exceptionSender.SendException(error,
             eventId,
             queryParams: context.Request.Query,
             requestBody: (await context.Request.BodyReader.ReadAsync()).Buffer.ToArray(),
@@ -67,9 +67,9 @@ namespace WebApi.Middleware
         else
         {
           responseObject.Type = "Exception";
-          responseObject.Data.Add ("message", $"Internal server error ID = {id}");
+          responseObject.Data.Add("message", $"Internal server error ID = {id}");
         }
-        
+
         await response.WriteAsync(JsonSerializer.Serialize(responseObject));
       }
     }

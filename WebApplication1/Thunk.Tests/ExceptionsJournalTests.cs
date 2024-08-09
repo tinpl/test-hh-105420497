@@ -1,6 +1,5 @@
 ﻿using System.Buffers;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using Thunk.Services.ExceptionsJournal;
 
@@ -41,8 +40,8 @@ namespace Thunk.Tests
           eventId,
           new List<KeyValuePair<string, StringValues>>
           {
-            new ("query_param1", new StringValues(new[] { "1", "2", "3" })),
-            new ("query_param2", StringValues.Empty),
+            new("query_param1", new StringValues(new[] { "1", "2", "3" })),
+            new("query_param2", StringValues.Empty),
           },
           someBodyData,
           CancellationToken.None

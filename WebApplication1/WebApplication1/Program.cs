@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Thunk.Services.ExceptionsJournal;
 using Thunk.Services.Tree;
 using WebApi.Middleware;
+using WebApi.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.AddDbContext<TreeFacade>(options =>
   options.UseNpgsql(builder.Configuration.GetConnectionString("Tree"))
     .UseSnakeCaseNamingConvention());
 builder.Services.AddScoped<TreeService>();
+
+builder.Services.AddScoped<IExceptionSender, ExceptionSender>();
 
 var app = builder.Build();
 
@@ -42,4 +45,3 @@ app.UseMiddleware<ErrorHandlerMiddleware>();
 app.MapControllers();
 
 app.Run();
-
