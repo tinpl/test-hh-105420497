@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Thunk.Services.Tree;
 
-namespace WebApplication1.Controllers
+namespace WebApi.Controllers
 {
-  public record UserTreeNodeVm(long Id, string Name);
+  public record UserTreeNodeVm(long Id, string Name, UserTreeNodeVm[] Children);
   public record UserTreeVm(long Id, string Name, UserTreeNodeVm[] Children);
 
   [ApiController]
@@ -10,28 +11,49 @@ namespace WebApplication1.Controllers
   [Produces("application/json")]
   public class TreeController : ControllerBase
   {
-    [HttpPost("get")]
-    public Task<UserTreeVm> Get(string treeName)
+    private readonly TreeService _treeService;
+
+    public TreeController(TreeService treeService)
     {
-      throw new NotImplementedException();
+      _treeService = treeService;
+    }
+
+    [HttpPost("get")]
+    public async Task<UserTreeVm> Get(string treeName, CancellationToken cancellationToken)
+    {
+      var (tree, rootNodes) = await _treeService.GetOrCreateTree(treeName, cancellationToken);
+
+      UserTreeNodeVm[] ParseChildren(IEnumerable<TreeNode> children)
+      {
+        if (children == null) 
+          return Array.Empty<UserTreeNodeVm>();
+
+        return children.Select(childNode => new UserTreeNodeVm(
+            childNode.Id,
+            childNode.Name,
+            ParseChildren(childNode.Children)))
+          .ToArray();
+      }
+      
+      return new UserTreeVm(tree.Id, tree.TreeName, ParseChildren(rootNodes));
     }
 
     [HttpPost("node.create")]
-    public Task NodeCreate(string treeName, long parentNodeId, string nodeName)
+    public Task NodeCreate(string treeName, long parentNodeId, string nodeName, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      return _treeService.NodeCreate(treeName, parentNodeId, nodeName, cancellationToken);
     }
 
     [HttpPost("node.delete")]
-    public Task NodeDelete(string treeName, long nodeId)
+    public Task NodeDelete(string treeName, long nodeId, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      return _treeService.NodeDelete(treeName, nodeId, cancellationToken);
     }
 
     [HttpPost("node.rename")]
-    public Task NodeRename(string treeName, long nodeId, string newNodeName)
+    public Task NodeRename(string treeName, long nodeId, string newNodeName, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      return _treeService.NodeRename(treeName, nodeId, newNodeName, cancellationToken);
     }
 
   }
