@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Thunk.Services.ExceptionsJournal;
+using WebApi.Utilities;
 
 namespace WebApi.Controllers
 {
