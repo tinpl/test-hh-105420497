@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using Thunk.Services.ExceptionsJournal;
 using WebApi.Utilities;
 
@@ -27,7 +28,10 @@ namespace WebApi.Controllers
     }
 
     [HttpPost("getRange")]
-    public async Task<ReturnRange<JournaledExceptionInfoVm>> GetRange(int skip, int take, JournalGetRangeFilter filter,
+    public async Task<ReturnRange<JournaledExceptionInfoVm>> GetRange(
+      [Range(0, int.MaxValue)] int skip,
+      [Range(0, int.MaxValue)] int take, 
+      JournalGetRangeFilter filter,
       CancellationToken cancellationToken)
     {
       var result =
@@ -38,7 +42,9 @@ namespace WebApi.Controllers
     }
 
     [HttpPost("getSingle")]
-    public async Task<JournaledExceptionVm> GetSingle(long id, CancellationToken cancellationToken)
+    public async Task<JournaledExceptionVm> GetSingle(
+      [Range(0, int.MaxValue)] long id, 
+      CancellationToken cancellationToken)
     {
       var result = await _exceptionsJournalService.GetSingle(id, cancellationToken);
       return new JournaledExceptionVm(result.Message, result.Id, result.EventId, result.TimeStamp);

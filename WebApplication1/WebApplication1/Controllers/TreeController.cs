@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using Thunk.Services.Tree;
 
 namespace WebApi.Controllers
@@ -39,19 +40,24 @@ namespace WebApi.Controllers
     }
 
     [HttpPost("node.create")]
-    public Task NodeCreate(string treeName, long parentNodeId, string nodeName, CancellationToken cancellationToken)
+    public Task NodeCreate(string treeName,
+      [Range(0, int.MaxValue)] long parentNodeId, string nodeName, CancellationToken cancellationToken)
     {
       return _treeService.NodeCreate(treeName, parentNodeId, nodeName, cancellationToken);
     }
 
     [HttpPost("node.delete")]
-    public Task NodeDelete(string treeName, long nodeId, CancellationToken cancellationToken)
+    public Task NodeDelete(string treeName,
+      [Range(0, int.MaxValue)] long nodeId, 
+      CancellationToken cancellationToken)
     {
       return _treeService.NodeDelete(treeName, nodeId, cancellationToken);
     }
 
     [HttpPost("node.rename")]
-    public Task NodeRename(string treeName, long nodeId, string newNodeName, CancellationToken cancellationToken)
+    public Task NodeRename(string treeName,
+      [Range(0, int.MaxValue)] long nodeId, 
+      string newNodeName, CancellationToken cancellationToken)
     {
       return _treeService.NodeRename(treeName, nodeId, newNodeName, cancellationToken);
     }
