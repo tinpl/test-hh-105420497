@@ -44,6 +44,11 @@ namespace WebApi.Middleware
         long id = 0;
         try
         {
+          // todo: If we don't care about possibility to lose intermediate state during incremental restart ->
+          // consider adding an indirection and send exceptions to internal MPSC buffer (maybe persisted to make possible restarts of a server), 
+          // so we can survive restarts/temporal inaccesibility of Broker/Database where exception are being sent to.
+          // sorry, out of scope for the time allocated for a task
+
           id = await exceptionSender.SendException(error,
             eventId,
             queryParams: context.Request.Query,
